@@ -1524,7 +1524,7 @@ const QUIZ = [
     ]
   },
   {
-    q: "Pick the class assignment you would least want to trade away.",
+    q: "Which class assignment would you choose?",
     options: [
       { label: "Build a working web app from scratch", d: { build: 3, business: -1 } },
       { label: "Analyze a messy dataset and defend a recommendation", d: { data: 3, build: -1 } },
@@ -1663,8 +1663,8 @@ function renderHome() {
       <div>
         <span class="eyebrow" style="color:#9FC0DE">Start here</span>
         <h2>Which of the five tracks fits how you work?</h2>
-        <p>Twelve questions about how you actually like to spend a day. Every answer raises or lowers a score for all five career tracks, and you get a ranked result with three specific job titles to look at.</p>
-        <p class="band-note">Takes about three minutes</p>
+        <p>Seventeen questions about how you actually like to spend a day. Twelve score the five career tracks; five more read your working style. You get a ranked result and three specific job titles, chosen for you out of fifteen.</p>
+        <p class="band-note">Takes about four minutes</p>
       </div>
       <a class="btn btn-primary btn-lg" href="#/quiz">Take the career quiz</a>
     </section>
@@ -1822,7 +1822,7 @@ function renderQuiz() {
         </div>
       </div>
       <p style="font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:16px;text-align:center">
-        Each answer adds to or subtracts from a score for all five tracks. Answer honestly, not aspirationally.
+        Each answer moves your score on the five career tracks, on your working style, or on both. Answer honestly, not aspirationally.
       </p>
     </div>
   </div>`;
@@ -2122,6 +2122,363 @@ function wire() {
     });
   });
 }
+
+/* =====================================================================
+   QUIZ UPGRADE  --  paste this ONE block into index.html.
+
+   WHERE: inside the existing <script>, immediately BEFORE the line
+
+       /* =====================  THEME  ===================== *​/
+
+   That position matters. It is after every function is defined (so the
+   scoreQuiz and renderResults below override the originals) and before
+   route() runs at the bottom (so the extra questions exist by the time
+   anything renders). Paste it anywhere else and you will get a subtle
+   wrong answer with no error message.
+
+   DELETE NOTHING. The old scoreQuiz and renderResults stay where they
+   are; JavaScript uses the last declaration of a given function name,
+   so these win. If you ever want the old behavior back, delete this
+   block and everything reverts.
+
+   WHAT IT CHANGES
+   1. Adds 5 style questions (17 total) that separate the 3 roles inside
+      each track. Without them, Full-Stack, Front-End and SDET score
+      identically for everyone.
+   2. Scores every track against its own range. Business could reach +34
+      across the quiz while Cloud topped out at +24, so Business won 28%
+      of randomly-answered quizzes and Cloud 13.5%.
+   3. Recommends 3 specific roles out of 15 instead of one track's fixed
+      three.
+   4. Fixes the result bars, which previously stretched the lowest track
+      to 4% and the highest to 100% every time, so a near-tie looked
+      identical to a landslide.
+   ===================================================================== */
+
+
+/* ---------------------------------------------------------------------
+   1. STYLE DIMENSIONS
+
+   Four ways of working that cut ACROSS tracks:
+     people    +2 stakeholder-facing    -2 heads-down
+     verify    +2 proving / checking    -2 creating new
+     ops       +2 owns running systems  -2 project work, no pager
+     breadth   +2 many contexts fast    -2 one system deeply
+   --------------------------------------------------------------------- */
+
+const DIMS = { people: 0, verify: 0, ops: 0, breadth: 0 };
+
+const QUIZ_DIMENSIONS = [
+  {
+    q: "Four job offers, same pay. Which pitch gets you?",
+    options: [
+      { label: "Build the new thing, and live with not knowing if it is right",
+        d: {}, dim: { verify: -2, people: -1 } },
+      { label: "Prove the existing thing works, and be the one who is certain",
+        d: {}, dim: { verify: 2 } },
+      { label: "Decide what gets built at all, and defend the decision",
+        d: {}, dim: { people: 2, verify: -1 } },
+      { label: "Keep it all running, and be the reason it never went down",
+        d: {}, dim: { ops: 2, verify: 1 } }
+    ]
+  },
+  {
+    q: "Three years from now, which would bother you more?",
+    options: [
+      { label: "I know one system inside out but have never seen another company",
+        d: {}, dim: { breadth: 2 } },
+      { label: "I have seen twenty companies but never went deep on anything",
+        d: {}, dim: { breadth: -2 } },
+      { label: "I am good at the work but nobody outside my team knows my name",
+        d: {}, dim: { people: 2 } },
+      { label: "I am well known but could not build the thing myself anymore",
+        d: {}, dim: { people: -2, verify: -1 } }
+    ]
+  },
+  {
+    q: "How do you feel about work that has a clear right answer?",
+    options: [
+      { label: "I want it. Checking something carefully and being certain is satisfying",
+        d: {}, dim: { verify: 2, ops: 1 } },
+      { label: "I would rather work on things where nobody knows the answer yet",
+        d: {}, dim: { verify: -2 } },
+      { label: "Mixed &mdash; I like ambiguity but want to prove I got it right",
+        d: {}, dim: { verify: 1, people: 1 } },
+      { label: "I care less about that than whether anyone uses what I made",
+        d: {}, dim: { verify: -1, people: 1 } }
+    ]
+  },
+  {
+    q: "Your work is finished. Who sees it?",
+    options: [
+      { label: "A client, in a room, and I am presenting it",
+        d: {}, dim: { people: 2, breadth: 1 } },
+      { label: "Users, who never think about me at all",
+        d: {}, dim: { people: -1, verify: -1 } },
+      { label: "My team, in a code review or a report",
+        d: {}, dim: { people: -1, verify: 1 } },
+      { label: "Nobody, because when it works nothing happens",
+        d: {}, dim: { ops: 2, people: -1 } }
+    ]
+  },
+  {
+    q: "Which is closest to how you want to spend a Tuesday?",
+    options: [
+      { label: "Heads down, headphones on, one hard problem",
+        d: {}, dim: { people: -2, ops: -1 } },
+      { label: "Four short conversations with people who need different things",
+        d: {}, dim: { people: 2, breadth: 1 } },
+      { label: "Working through a queue of things that need judgment calls",
+        d: {}, dim: { ops: 2, verify: 1 } },
+      { label: "Digging into why a number is wrong until I find it",
+        d: {}, dim: { verify: 2, people: -1 } }
+    ]
+  }
+];
+
+/* One quiz from here on. renderQuiz reads QUIZ.length for the progress
+   bar and the "Question X of Y" label, so both update automatically. */
+QUIZ.push(...QUIZ_DIMENSIONS);
+
+
+/* ---------------------------------------------------------------------
+   2. ROLE PROFILES
+
+   >>> THESE ARE EDITORIAL, NOT CODE. <<<
+
+   Each role's target on the four dimensions, -2 to +2. They were derived
+   from the role descriptions you wrote above -- SDET is +2 verify because
+   your own text says "you think adversarially"; Consultant is +2 breadth
+   because your text says you see many companies fast.
+
+   They encode real claims about these careers. Changing a number changes
+   who gets recommended what. Disagree freely.
+
+   Note: dta-scientist is near-neutral on all four, so it can only win on
+   track score. If you think the statistics focus makes it a +verify role,
+   say so here.
+   --------------------------------------------------------------------- */
+
+const ROLE_PROFILE = {
+  "swe-fullstack":  { people: -1, verify: -1, ops:  0, breadth: -1 },
+  "swe-frontend":   { people:  0, verify: -1, ops: -1, breadth: -1 },
+  "swe-sdet":       { people:  0, verify:  2, ops:  0, breadth:  0 },
+
+  "dta-analyst":    { people:  1, verify:  1, ops: -1, breadth:  1 },
+  "dta-eng":        { people: -1, verify:  1, ops:  1, breadth: -1 },
+  "dta-scientist":  { people:  0, verify:  0, ops: -1, breadth:  0 },
+
+  "bsa-analyst":    { people:  2, verify:  0, ops: -2, breadth:  0 },
+  "bsa-apm":        { people:  2, verify: -1, ops: -1, breadth:  0 },
+  "bsa-consultant": { people:  2, verify:  0, ops: -2, breadth:  2 },
+
+  "sec-soc":        { people: -1, verify:  1, ops:  2, breadth:  0 },
+  "sec-grc":        { people:  1, verify:  2, ops: -2, breadth:  1 },
+  "sec-pentest":    { people:  0, verify:  2, ops: -1, breadth:  1 },
+
+  "cld-cloud":      { people: -1, verify:  0, ops:  1, breadth: -1 },
+  "cld-devops":     { people:  0, verify:  1, ops:  2, breadth:  0 },
+  "cld-sysadmin":   { people:  1, verify:  0, ops:  2, breadth:  0 }
+};
+
+/* THE KNOB. How much the track matters relative to working style.
+     1.5  close to the old behavior: 3 roles from one track
+     0.9  current
+     0.3  track barely matters
+   Take the quiz at two or three values and pick the one whose results
+   you would actually defend to a student. */
+const TRACK_WEIGHT = 0.9;
+
+
+/* ---------------------------------------------------------------------
+   3. SCORING
+   --------------------------------------------------------------------- */
+
+/* Mean and standard deviation of each key under random answering.
+   Each question is an independent draw, so means add and variances add.
+   That makes this exact rather than simulated.
+
+   This is what puts the tracks on equal footing. Note it reads QUIZ
+   AFTER the push above, so it covers all 17 questions -- and it
+   recomputes whenever you edit a question, with no manual work. */
+function keyStats(keys, field) {
+  const stats = {};
+  for (const key in keys) {
+    let mean = 0, variance = 0;
+    for (const q of QUIZ) {
+      const vals = q.options.map(o => (o[field] || {})[key] || 0);
+      const m = vals.reduce((a, b) => a + b, 0) / vals.length;
+      variance += vals.reduce((a, b) => a + (b - m) ** 2, 0) / vals.length;
+      mean += m;
+    }
+    stats[key] = { mean, sd: Math.sqrt(variance) || 1 };
+  }
+  return stats;
+}
+
+const TRACK_STATS = keyStats(BASE_SCORES, "d");
+const DIM_STATS   = keyStats(DIMS, "dim");
+
+/* Overrides the original. Returns raw points (still worth showing the
+   student) plus z-scores, which are what you actually rank on. */
+function scoreQuiz() {
+  const raw = Object.assign({}, BASE_SCORES);
+  const rawDim = Object.assign({}, DIMS);
+
+  quizState.answers.forEach((choice, qi) => {
+    if (choice == null || !QUIZ[qi]) return;
+    const opt = QUIZ[qi].options[choice];
+    for (const t in (opt.d || {}))   if (t in raw)    raw[t] += opt.d[t];
+    for (const k in (opt.dim || {})) if (k in rawDim) rawDim[k] += opt.dim[k];
+  });
+
+  const z = {}, pct = {}, dimZ = {};
+  for (const t in raw) {
+    z[t] = (raw[t] - TRACK_STATS[t].mean) / TRACK_STATS[t].sd;
+    // z of -2 to +2 covers almost everyone; clamp keeps bars in range
+    pct[t] = Math.round(Math.max(0, Math.min(100, ((z[t] + 2) / 4) * 100)));
+  }
+  for (const k in rawDim) {
+    dimZ[k] = (rawDim[k] - DIM_STATS[k].mean) / DIM_STATS[k].sd;
+  }
+
+  return { raw, z, pct, dimZ };
+}
+
+/* Rank all 15 roles: track fit plus how well the student's working style
+   matches the role's profile. Dot product, so a student who is strongly
+   +verify matches a strongly +verify role. Divided by 4 so a single
+   dimension cannot swamp the track score. */
+function scoreRoles(trackZ, dimZ) {
+  return Object.keys(ROLE_PROFILE).map(roleId => {
+    const profile = ROLE_PROFILE[roleId];
+    const track = ROLES[roleId].track;
+    let styleFit = 0;
+    for (const dim in profile) styleFit += (dimZ[dim] || 0) * profile[dim];
+    styleFit /= 4;
+    return {
+      id: roleId,
+      track: track,
+      fit: TRACK_WEIGHT * (trackZ[track] || 0) + styleFit
+    };
+  }).sort((a, b) => b.fit - a.fit);
+}
+
+/* Top 3, capped at 2 per track so students see a real spread rather than
+   three variations of the same job. Set maxPerTrack to 3 to remove the
+   cap -- it is a judgment call, not a correctness fix. */
+function topThreeRoles(trackZ, dimZ, maxPerTrack) {
+  if (maxPerTrack == null) maxPerTrack = 2;
+  const picked = [], counts = {};
+  for (const r of scoreRoles(trackZ, dimZ)) {
+    if ((counts[r.track] || 0) >= maxPerTrack) continue;
+    picked.push(r);
+    counts[r.track] = (counts[r.track] || 0) + 1;
+    if (picked.length === 3) break;
+  }
+  return picked;
+}
+
+
+/* ---------------------------------------------------------------------
+   4. RESULTS
+
+   Overrides the original. Three changes:
+     - ranks on z, not raw points, so tracks compete fairly
+     - bars use an absolute scale, so a close result LOOKS close
+     - recommends 3 specific roles instead of one track's fixed three
+   --------------------------------------------------------------------- */
+
+function renderResults() {
+  const scored = scoreQuiz();
+  const z = scored.z, raw = scored.raw, pct = scored.pct, dimZ = scored.dimZ;
+
+  const ranked = TRACKS.map(t => ({ t: t, z: z[t.id], raw: raw[t.id], pct: pct[t.id] }))
+                       .sort((a, b) => b.z - a.z);
+  const answered = quizState.answers.filter(a => a != null).length;
+
+  if (!answered) {
+    return `<div class="wrap"><div class="page-head"><h1>No answers yet</h1>
+      <p>Take the quiz first and your results will show up here.</p></div>
+      <a class="btn btn-primary" href="#/quiz">Start the quiz</a></div>`;
+  }
+
+  const bars = ranked.map((r, i) => `
+    <div class="bar-row${i === 0 ? " top" : ""}">
+      <span class="nm">${esc(r.t.name)}</span>
+      <span class="bar-track"><i style="width:${Math.max(r.pct, 3)}%"></i></span>
+      <span class="pct">${r.raw > 0 ? "+" : ""}${r.raw}</span>
+    </div>`).join("");
+
+  const top = ranked[0].t;
+  const second = ranked[1].t;
+  const closeCall = (ranked[0].z - ranked[1].z) < 0.5;
+
+  const roles = topThreeRoles(z, dimZ);
+  const spread = new Set(roles.map(r => r.track)).size > 1;
+
+  return `
+  <div class="wrap">
+    <div class="result-hero">
+      <div>
+        <span class="eyebrow">Your result &#183; ${answered} of ${QUIZ.length} answered</span>
+        <h1>${esc(top.full)}</h1>
+        <p>${esc(top.blurb)}</p>
+        ${closeCall ? `<p style="margin-top:14px;font-size:15px">Your runner-up was <strong>${esc(second.full)}</strong>, and it was close &mdash; worth taking seriously. Plenty of people move between these two tracks.</p>` : ""}
+        <div class="hero-cta" style="margin-top:20px">
+          <a class="btn btn-ghost btn-sm" href="#/careers/${top.id}">Read the full track</a>
+          <a class="btn btn-ghost btn-sm" href="#/quiz" data-quiz="restart">Retake the quiz</a>
+        </div>
+      </div>
+      <div>
+        <h3 style="font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px">How the five tracks scored</h3>
+        <div class="bars">${bars}</div>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:14px;font-family:var(--mono);line-height:1.6">Each track is scored against its own range, so they compete on equal footing. Bar length is an absolute position &mdash; close bars mean a close result.</p>
+      </div>
+    </div>
+
+    <div class="page-head" style="margin-top:44px">
+      <span class="eyebrow">Your three closest roles</span>
+      <h1 style="font-size:1.9rem">Start with these titles</h1>
+      <p>${spread
+        ? "These come from more than one track, because how you want to work matters as much as what you want to work on."
+        : "Your answers pointed consistently at one track, so all three sit inside it."}</p>
+    </div>
+    ${roles.map((r, i) => roleBlock(r.id, i + 1, true)).join("")}
+
+    <div class="band">
+      <div>
+        <h2>Practice before the STEM fair</h2>
+        <p>Every role has seven real questions &mdash; three behavioral, four technical &mdash; with a model answer and a checklist of what the interviewer is listening for.</p>
+      </div>
+      <a class="btn btn-primary" href="#/prep">Open interview prep</a>
+    </div>
+  </div>`;
+}
+
+
+/* ---------------------------------------------------------------------
+   STILL TO DO BY HAND -- this block cannot do these for you
+   (a) and (b) below were both applied when this block was integrated.
+
+   a) Question 5's stem. In QUIZ, change
+        "Pick the class assignment you would least want to trade away."
+      to
+        "Which class assignment would you choose?"
+
+   b) Homepage copy in the band-lead section still says "Twelve
+      questions" and "three specific job titles to look at". It is now
+      17 questions, and the titles are chosen rather than fixed.
+      "Takes about three minutes" should probably say four.
+
+   TESTING BEFORE YOU PUSH
+   1. Take it through. It should say "Question 17 of 17".
+   2. Take it again answering only heads-down technical options.
+   3. Take it again answering only people-facing options.
+      If steps 2 and 3 give the same three roles, this block is in the
+      wrong place and the dimension questions are not being counted.
+   --------------------------------------------------------------------- */
+
 
 /* =====================  THEME  ===================== */
 const themeBtn = document.getElementById("themeBtn");
