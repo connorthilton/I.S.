@@ -162,8 +162,8 @@ button{font-family:inherit}
 .rule{height:1px;background:var(--line);border:0;margin:0}
 
 /* ---------- hero ---------- */
-.hero{display:grid;grid-template-columns:1.35fr 1fr;gap:52px;align-items:start;padding:30px 0 36px}
-.hero h1{font-size:clamp(2.2rem,4.4vw,3.3rem);font-weight:800;letter-spacing:-.035em;margin:12px 0 0}
+.hero{display:grid;grid-template-columns:1.5fr 1fr;gap:44px;align-items:start;padding:20px 0 30px}
+.hero h1{font-size:clamp(2.1rem,3.8vw,2.9rem);font-weight:800;letter-spacing:-.035em;margin:10px 0 0}
 .hero h1 em{font-style:normal;color:var(--brand-text);position:relative;white-space:nowrap}
 .hero h1 em::after{
   content:"";position:absolute;left:0;right:0;bottom:.06em;height:.14em;
@@ -204,10 +204,27 @@ button{font-family:inherit}
 }
 .track-more{font-family:var(--display);font-size:13px;font-weight:600;color:var(--brand-text);margin-top:10px}
 
+/* compact variant used on the landing page */
+.track.compact{padding:18px 20px 16px;gap:9px}
+.track.compact h3{font-size:17.5px}
+.track.compact p{font-size:14.5px}
+.titles{
+  font-family:var(--mono);font-size:11.5px;line-height:1.75;color:var(--muted);
+  border-top:1px solid var(--line);padding-top:10px;margin-top:auto;
+}
+
 /* ---------- quiz band ---------- */
 .band{
   margin-top:40px;background:var(--brand);color:#fff;border-radius:var(--radius);
   padding:32px 34px;display:grid;grid-template-columns:1fr auto;gap:28px;align-items:center;
+}
+.band-lead{padding:38px 40px;box-shadow:var(--shadow-lift);margin-top:32px}
+.band-lead h2{font-size:clamp(1.6rem,2.8vw,2.1rem)}
+.band-lead p{font-size:16px;margin-top:10px}
+.btn-lg{padding:16px 30px;font-size:16.5px;border-radius:9px}
+.band-note{
+  font-family:var(--mono);font-size:11px;letter-spacing:.11em;text-transform:uppercase;
+  color:#9FC0DE;margin-top:14px;
 }
 :root[data-theme="dark"] .band, :root:not([data-theme="light"]) .band{color:#fff}
 .band h2{font-size:26px;color:#fff}
@@ -438,6 +455,7 @@ const TRACKS = [
     name: "Build It",
     full: "Software & Application Development",
     blurb: "You write the product. Turning a requirement into working, tested, deployed code is the job, and the feedback loop is fast: you can see what you made.",
+    short: "Write the product. Fast feedback, tangible output.",
     intro: "The largest single destination for IS graduates. IS developers tend to sit closer to the business than CS graduates do — they are the people who can read a requirements doc, ask the right question in a stakeholder meeting, and then go write the endpoint. That combination is why IS majors often move into lead and architect roles faster than they expect.",
     fit: [
       "You liked IS 303 / 403 more than you expected to, and debugging felt like a puzzle rather than a punishment.",
@@ -453,6 +471,7 @@ const TRACKS = [
     name: "Find the Signal",
     full: "Data, Analytics & Machine Learning",
     blurb: "You turn messy operational data into a number somebody trusts enough to make a decision on. Heavy SQL, real statistics, and a lot of asking “what question are we actually answering?”",
+    short: "Turn messy data into a number someone will act on.",
     intro: "The fastest-growing track for IS graduates and the one where the IS degree is most obviously advantaged: analytics is 20% technique and 80% understanding the business process that generated the data. BLS projects data scientist employment to grow 34% from 2024 to 2034, far above the average for all occupations.",
     fit: [
       "You are the person who rebuilds a spreadsheet because the original one was structured badly.",
@@ -468,6 +487,7 @@ const TRACKS = [
     name: "Bridge the Gap",
     full: "Business Analysis, Product & Consulting",
     blurb: "You sit between the people who need something and the people who build it. Your deliverables are clarity, prioritization, and decisions — not code.",
+    short: "Sit between the people who need it and the people who build it.",
     intro: "The classic IS destination and still the largest recruiting pipeline at BYU, especially through the Big 4 and regional consulting firms. The work rewards people who can run a room, write precisely, and read a data model well enough to tell an engineer their estimate is wrong.",
     fit: [
       "You are the one who ends up running the group project.",
@@ -483,6 +503,7 @@ const TRACKS = [
     name: "Defend It",
     full: "Cybersecurity, Risk & Compliance",
     blurb: "You find the weaknesses before someone else does, and prove to auditors and regulators that the controls actually work. Adversarial thinking as a day job.",
+    short: "Find the weaknesses first, and prove the controls work.",
     intro: "Two very different doors into one field: the technical door (SOC, incident response, offensive security) and the governance door (IT audit, risk, compliance) — which at BYU is the single most heavily recruited path by the Big 4. BLS projects 29% growth for information security analysts from 2024 to 2034, with a May 2024 median wage of $124,910.",
     fit: [
       "Your instinct on any new system is “how would I break this?”",
@@ -498,6 +519,7 @@ const TRACKS = [
     name: "Keep It Running",
     full: "Cloud, Infrastructure & Platform Engineering",
     blurb: "You build and run the platform every other team deploys onto. When it works, nobody notices; that invisibility is the craft.",
+    short: "Build and run the platform everything else deploys onto.",
     intro: "The infrastructure track has been remade by cloud and automation: the job is now writing code that provisions systems rather than racking hardware. It is the highest-leverage place in most engineering orgs, and one of the few tracks where certifications genuinely move a resume.",
     fit: [
       "You like systems more than features — how the pieces connect is the interesting part.",
@@ -1591,61 +1613,60 @@ let quizState = { i: 0, answers: [] };
 /* =====================  HOME  ===================== */
 function renderHome() {
   const cards = TRACKS.map(t => `
-    <button class="track" data-go="#/careers/${t.id}">
+    <button class="track compact" data-go="#/careers/${t.id}">
       <div class="track-top">
         <h3>${esc(t.full)}</h3>
         <span class="code-chip">${t.code}</span>
       </div>
-      <p>${esc(t.blurb)}</p>
-      <ul class="roles-mini">
-        ${t.roles.map(r => `<li>${esc(ROLES[r].title)}</li>`).join("")}
-      </ul>
-      <div class="track-more">Read the full track &rarr;</div>
+      <p>${esc(t.short)}</p>
+      <div class="titles">${t.roles.map(r => esc(ROLES[r].title)).join(" &#183; ")}</div>
+      <div class="track-more">Read the track &rarr;</div>
     </button>`).join("");
-
-  const index = TRACKS.map(t => `
-    <li>
-      <span class="n">${t.code}</span>
-      <span><b>${esc(t.name)}</b><small>${esc(t.full)}</small></span>
-    </li>`).join("");
 
   return `
   <div class="wrap">
     <section class="hero">
       <div>
         <span class="eyebrow">BYU Information Systems &#183; Fall 2026</span>
-        <h1>Fifteen jobs your degree actually leads to. <em>Start here.</em></h1>
-        <p class="hero-sub">Most IS students pick a career in their last semester, from a list of three roles they happened to hear about. Read what these jobs really involve, find the track that fits how you think, then practice the questions you will actually be asked.</p>
+        <h1>What is Information&nbsp;Systems?</h1>
+        <p class="hero-sub">IS is the degree that sits between a business and the technology that runs it. You learn to read a database schema and an income statement, and the job is usually to make the two agree.</p>
+        <p class="hero-sub" style="margin-top:12px">Not computer science &mdash; you write code, but the question driving it is always what the organization needs. Not a general business degree either; the technical bar is real. IS graduates end up as the translation layer between the two.</p>
         <div class="hero-cta">
-          <a class="btn btn-primary" href="#/careers">Explore the careers</a>
-          <a class="btn btn-ghost" href="#/prep">Go straight to interview prep</a>
+          <a class="btn btn-primary btn-lg" href="#/quiz">Take the career quiz &rarr;</a>
+          <a class="btn btn-ghost" href="#/careers">Read about the careers</a>
         </div>
-        <p class="hero-note">5 tracks &#183; 15 roles &#183; 105 practice questions with model answers</p>
       </div>
       <aside class="hero-panel">
-        <h3>The five tracks</h3>
-        <ul class="idx">${index}</ul>
+        <h3>How IS compares</h3>
+        <ul class="idx">
+          <li><span><b>vs. Computer Science</b><small>CS goes deeper on theory, algorithms, and how the machine works. IS goes deeper on what an organization needs it to do.</small></span></li>
+          <li><span><b>vs. Finance or Accounting</b><small>Same business core, but you leave able to build and query the systems those functions run on.</small></span></li>
+          <li><span><b>Why it places well</b><small>Every industry runs on systems, so IS graduates land in tech, healthcare, banking, consulting, and manufacturing alike.</small></span></li>
+        </ul>
       </aside>
     </section>
 
-    <hr class="rule">
-
-    <section style="padding-top:34px">
-      <div class="sec-head">
-        <h2 style="font-size:26px">Start by reading about each one</h2>
-        <span class="eyebrow">Then take the quiz</span>
+    <section class="band band-lead">
+      <div>
+        <span class="eyebrow" style="color:#9FC0DE">Start here</span>
+        <h2>Which of the five tracks fits how you work?</h2>
+        <p>Twelve questions about how you actually like to spend a day. Every answer raises or lowers a score for all five career tracks, and you get a ranked result with three specific job titles to look at.</p>
+        <p class="band-note">Takes about three minutes</p>
       </div>
-      <p style="color:var(--muted);max-width:64ch">Every track below covers what the work looks like day to day, the tools you need, what an internship candidate is expected to know, real salary ranges, and what makes a strong candidate.</p>
-      <div class="tracks">${cards}</div>
+      <a class="btn btn-primary btn-lg" href="#/quiz">Take the career quiz</a>
     </section>
 
-    <section class="band">
-      <div>
-        <span class="eyebrow" style="color:#9FC0DE">Step two</span>
-        <h2>Not sure which one is you?</h2>
-        <p>Twelve questions about how you actually like to work. Each answer moves a score for all five tracks up or down, and you get a ranked result with three specific job titles to look at.</p>
+    <hr class="rule" style="margin-top:44px">
+
+    <section style="padding-top:30px">
+      <div class="sec-head">
+        <h2 style="font-size:24px">Fifteen jobs, five tracks</h2>
+        <span class="eyebrow">Day-to-day work &#183; skills &#183; salary &#183; how to stand out</span>
       </div>
-      <a class="btn btn-primary" href="#/quiz">Take the career quiz</a>
+      <div class="tracks">${cards}</div>
+      <p style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:18px">
+        Already know your role? <a href="#/prep">Go straight to interview prep</a> &mdash; 105 questions with model answers.
+      </p>
     </section>
   </div>`;
 }
