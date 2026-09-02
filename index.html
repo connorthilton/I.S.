@@ -408,22 +408,297 @@ footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
 footer p{font-size:13px;color:var(--muted);max-width:62ch}
 footer b{font-family:var(--display);font-size:13px;color:var(--text)}
 .src{font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.7}
+
+/* -------- Full-Screen Hero & UI Polish ---------- */
+.marriott-logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.btn-bubble-nav {
+  font-family: var(--display);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  background-color: #002E5D;
+  color: #FFFFFF !important;
+  padding: 8px 18px;
+  border-radius: 9999px; /* Pill shape */
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 46, 93, 0.25);
+  transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+.btn-bubble-nav:hover {
+  background-color: #003e7e;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 46, 93, 0.35);
+}
+
+/* Full-viewport section layout */
+.hero-16p {
+  min-height: calc(100vh - 65px); /* Full browser height minus topbar */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 40px 20px 60px;
+  position: relative;
+}
+.hero-16p h1 {
+  font-size: clamp(3rem, 7vw, 5.2rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--brand);
+  line-height: 1.05;
+  margin-bottom: 20px;
+}
+:root[data-theme="dark"] .hero-16p h1 {
+  color: #FFFFFF;
+}
+.hero-16p .hero-lead {
+  font-size: clamp(1.2rem, 2.2vw, 1.45rem);
+  color: var(--muted);
+  max-width: 60ch;
+  line-height: 1.55;
+  margin: 0 auto 36px;
+}
+.scroll-indicator {
+  position: absolute;
+  bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  opacity: 0.8;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.scroll-indicator:hover {
+  opacity: 1;
+  transform: translateY(2px);
+}
+.scroll-arrow {
+  font-size: 16px;
+  animation: bounce 1.8s infinite;
+}
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(6px); }
+  60% { transform: translateY(3px); }
+}
+/* ---------- Tanner Building Watermark Hero (Fixed Stacking) ---------- */
+.hero-16p {
+  min-height: calc(100vh - 65px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 60px 20px 80px;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--paper);
+}
+
+/* Layer 1: Base image */
+.hero-bg-watermark {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 38%;
+  opacity: 0.45;
+  filter: saturate(1) brightness(1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+:root[data-theme="dark"] .hero-bg-watermark {
+  opacity: 0.32;
+  filter: brightness(0.85) contrast(1.1);
+}
+
+/* Layer 2: Vignette mask overlay */
+.hero-16p::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center, 
+    rgba(244, 246, 249, 0.25) 0%,   
+    rgba(244, 246, 249, 0.55) 60%,  
+    rgba(244, 246, 249, 0.88) 100%  
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+:root[data-theme="dark"] .hero-16p::after {
+  background: radial-gradient(
+    circle at center, 
+    rgba(10, 18, 27, 0.30) 0%, 
+    rgba(10, 18, 27, 0.65) 60%, 
+    rgba(10, 18, 27, 0.90) 100%
+  );
+}
+
+/* Layer 3: Text content (CRITICAL: position: relative activates z-index) */
+.hero-content {
+  position: relative;
+  z-index: 5; /* Lifts all text safely above the image and vignette */
+}
+
+.hero-16p h1 {
+  font-size: clamp(3.2rem, 7.5vw, 5.4rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--brand);
+  line-height: 1.05;
+  margin-bottom: 20px;
+  text-shadow: 
+    0 0 20px rgba(255, 255, 255, 0.95),
+    0 2px 8px rgba(255, 255, 255, 0.9);
+}
+
+:root[data-theme="dark"] .hero-16p h1 {
+  color: #FFFFFF;
+  text-shadow: 
+    0 0 24px rgba(0, 0, 0, 0.95),
+    0 2px 10px rgba(0, 0, 0, 0.9);
+}
+
+.hero-16p .hero-lead {
+  font-size: clamp(1.25rem, 2.2vw, 1.45rem);
+  color: var(--text);
+  font-weight: 600;
+  max-width: 58ch;
+  line-height: 1.55;
+  margin: 0 auto 36px;
+  text-shadow: 
+    0 0 16px rgba(255, 255, 255, 0.95),
+    0 1px 4px rgba(255, 255, 255, 0.9);
+}
+
+:root[data-theme="dark"] .hero-16p .hero-lead {
+  color: var(--text);
+  text-shadow: 
+    0 0 16px rgba(0, 0, 0, 0.95),
+    0 1px 6px rgba(0, 0, 0, 0.9);
+}
+
+/* Layer 4: Scroll Indicator */
+.scroll-indicator {
+  position: absolute;
+  bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--mono);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #101F2D;
+  text-decoration: none;
+  z-index: 6; /* Lifts caret and link above everything */
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+:root[data-theme="dark"] .scroll-indicator {
+  color: #E6EDF4;
+}
+
+.scroll-indicator:hover {
+  transform: translateY(3px);
+  color: var(--brand-text);
+}
+
+.scroll-caret {
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1;
+  animation: bounce 1.8s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(6px); }
+  60% { transform: translateY(3px); }
+}
+
+/* ---------- Enhanced Scroll Indicator ---------- */
+.scroll-indicator {
+  position: absolute;
+  bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--mono);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #101F2D; /* Darker tone */
+  text-decoration: none;
+  z-index: 4;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+:root[data-theme="dark"] .scroll-indicator {
+  color: #E6EDF4;
+}
+
+.scroll-indicator:hover {
+  transform: translateY(3px);
+  color: var(--brand-text);
+}
+
+.scroll-caret {
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1;
+  animation: bounce 1.8s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(6px); }
+  60% { transform: translateY(3px); }
+}
 </style>
 </head>
 <body>
 <header class="topbar">
   <div class="topbar-in">
     <a class="lockup" href="#/">
-      <span class="mark">BYU</span>
+      <span class="marriott-logo">
+        <svg width="42" height="42" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="BYU Marriott Logo">
+          <rect width="100" height="100" rx="14" fill="#002E5D"/>
+          <path d="M22 68V32H33.5L42 53.5L50.5 32H62V68H53.5V43L45 64.5H39L30.5 43V68H22Z" fill="#FFFFFF"/>
+          <path d="M68 68V32H76V68H68Z" fill="#D9A93F"/>
+        </svg>
+      </span>
       <span class="lockup-txt">
-        <b>Information Systems</b>
-        <span>Career Launchpad</span>
+        <b>BYU Marriott</b>
+        <span>Information Systems</span>
       </span>
     </a>
     <nav class="topnav" id="topnav">
+      <!-- Added Home link -->
+      <a href="#/" data-nav="home">Home</a>
       <a href="#/careers" data-nav="careers">Careers</a>
-      <a href="#/quiz" data-nav="quiz">Career Quiz</a>
       <a href="#/prep" data-nav="prep">Interview Prep</a>
+      <a href="#/quiz" class="btn-bubble-nav" data-nav="quiz">Take Quiz</a>
       <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch color theme" title="Switch theme">&#9681;</button>
     </nav>
   </div>
@@ -1610,67 +1885,67 @@ const store = {
 /* ---- quiz state ---- */
 let quizState = { i: 0, answers: [] };
 
-/* =====================  HOME  ===================== */
+/* =====================  HOME (RESTRUCTURED) ===================== */
 function renderHome() {
   const cards = TRACKS.map(t => `
-    <button class="track compact" data-go="#/careers/${t.id}">
+    <button class="track compact" data-go="#/careers/${t.id}" style="cursor:pointer;">
       <div class="track-top">
-        <h3>${esc(t.full)}</h3>
+        <h3 style="font-size:18px;">${esc(t.full)}</h3>
         <span class="code-chip">${t.code}</span>
       </div>
-      <p>${esc(t.short)}</p>
-      <div class="titles">${t.roles.map(r => esc(ROLES[r].title)).join(" &#183; ")}</div>
-      <div class="track-more">Read the track &rarr;</div>
+      <p style="font-weight:600; color:var(--brand-text); margin:2px 0 6px;">${esc(t.short)}</p>
+      <div class="titles">${t.roles.map(r => esc(ROLES[r].title)).join(" • ")}</div>
+      <div class="track-more">Explore track &rarr;</div>
     </button>`).join("");
 
   return `
-  <div class="wrap">
-    <section class="hero">
-      <div>
-        <span class="eyebrow">BYU Information Systems &#183; Fall 2026</span>
-        <h1>What is Information&nbsp;Systems?</h1>
-        <p class="hero-sub">IS is the degree that sits between a business and the technology that runs it. You learn to read a database schema and an income statement, and the job is usually to make the two agree.</p>
-        <p class="hero-sub" style="margin-top:12px">Not computer science &mdash; you write code, but the question driving it is always what the organization needs. Not a general business degree either; the technical bar is real. IS graduates end up as the translation layer between the two.</p>
-        <div class="hero-cta">
-          <a class="btn btn-primary btn-lg" href="#/quiz">Take the career quiz &rarr;</a>
-          <a class="btn btn-ghost" href="#/careers">Read about the careers</a>
-        </div>
-      </div>
-      <aside class="hero-panel">
-        <h3>How IS compares</h3>
-        <ul class="idx">
-          <li><span><b>vs. Computer Science</b><small>CS goes deeper on theory, algorithms, and how the machine works. IS goes deeper on what an organization needs it to do.</small></span></li>
-          <li><span><b>vs. Finance or Accounting</b><small>Same business core, but you leave able to build and query the systems those functions run on.</small></span></li>
-          <li><span><b>Why it places well</b><small>Every industry runs on systems, so IS graduates land in tech, healthcare, banking, consulting, and manufacturing alike.</small></span></li>
-        </ul>
-      </aside>
-    </section>
-
-    <section class="band band-lead">
-      <div>
-        <span class="eyebrow" style="color:#9FC0DE">Start here</span>
-        <h2>Which of the five tracks fits how you work?</h2>
-        <p>Twelve questions about how you actually like to spend a day. Every answer raises or lowers a score for all five career tracks, and you get a ranked result with three specific job titles to look at.</p>
-        <p class="band-note">Takes about three minutes</p>
-      </div>
-      <a class="btn btn-primary btn-lg" href="#/quiz">Take the career quiz</a>
-    </section>
-
-    <hr class="rule" style="margin-top:44px">
-
-    <section style="padding-top:30px">
-      <div class="sec-head">
-        <h2 style="font-size:24px">Fifteen jobs, five tracks</h2>
-        <span class="eyebrow">Day-to-day work &#183; skills &#183; salary &#183; how to stand out</span>
-      </div>
-      <div class="tracks">${cards}</div>
-      <p style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:18px">
-        Already know your role? <a href="#/prep">Go straight to interview prep</a> &mdash; 105 questions with model answers.
+  <!-- SECTION 1: FULL VIEWPORT HERO WITH WATERMARK -->
+  <section class="hero-16p">
+    <img class="hero-bg-watermark" src="tanner building.jpg" alt="BYU Marriott School Tanner Building Atrium" />
+    
+    <div class="wrap hero-content">
+      <span class="eyebrow" style="letter-spacing:0.2em; color:var(--accent); font-weight:700;">BYU Marriott Junior Core</span>
+      <h1>What is IS?</h1>
+      <p class="hero-lead">
+        You translate business needs into technical solutions. Five distinct career tracks. Discover where your strengths fit before the STEM Fair.
       </p>
+      <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+        <a class="btn btn-primary btn-lg" style="border-radius:9999px; padding:16px 36px;" href="#/quiz">Take the Career Quiz &rarr;</a>
+        <a class="btn btn-ghost btn-lg" style="border-radius:9999px; padding:16px 32px;" href="#careers-overview">Explore Careers</a>
+      </div>
+    </div>
+    
+    <!-- Darker, larger scroll indicator with upside-down caret (v) -->
+    <a href="#careers-overview" class="scroll-indicator" aria-label="Scroll to explore career tracks">
+      <span>Scroll to explore</span>
+      <span class="scroll-caret">v</span>
+    </a>
+  </section>
+
+  <div class="wrap" id="careers-overview" style="scroll-margin-top: 70px;">
+    <!-- SECTION 2: CAREER SUMMARIES -->
+    <section style="padding: 50px 0 30px;">
+      <div class="sec-head" style="margin-bottom:12px;">
+        <h2 style="font-size:26px;">The 5 IS Career Tracks</h2>
+        <span class="eyebrow">Quick glance at your post-core options</span>
+      </div>
+      <div class="tracks" style="margin-top:0;">
+        ${cards}
+      </div>
+    </section>
+
+    <!-- SECTION 3: FULL-WIDTH BOTTOM QUIZ BANNER -->
+    <section class="band band-lead" style="margin: 40px 0 60px;">
+      <div>
+        <span class="eyebrow" style="color:#9FC0DE">Still Deciding Your Track?</span>
+        <h2>Find Your Direction in 12 Questions</h2>
+        <p>Answer questions based on your natural problem-solving instincts. Receive personalized recommendations with matching roles and salary bands.</p>
+        <p class="band-note">Takes ~3 minutes</p>
+      </div>
+      <a class="btn btn-primary btn-lg" style="white-space:nowrap; border-radius:9999px;" href="#/quiz">Start Free Quiz</a>
     </section>
   </div>`;
 }
-
 /* =====================  CAREER TRACKS  ===================== */
 function payGrid(role) {
   const p = role.pay;
@@ -2021,7 +2296,10 @@ function route() {
   const view = parts[0] || "home";
   let html, navKey = view;
 
-  if (view === "home") { html = renderHome(); navKey = ""; }
+  if (view === "home" || view === "") { 
+    html = renderHome(); 
+    navKey = "home"; 
+  }
   else if (view === "careers") html = renderCareers(parts[1]);
   else if (view === "quiz") html = renderQuiz();
   else if (view === "results") { html = renderResults(); navKey = "quiz"; }
