@@ -354,10 +354,84 @@ button{font-family:inherit}
 @media (max-width:520px){ .bar-row{grid-template-columns:96px 1fr 40px} .bar-row .nm{font-size:12px} }
 
 /* ---------- interview ---------- */
-.iv-grid{display:grid;grid-template-columns:270px 1fr;gap:24px;align-items:start}
-@media (max-width:900px){ .iv-grid{grid-template-columns:1fr} }
-.iv-rail{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;position:sticky;top:78px}
-@media (max-width:900px){ .iv-rail{position:static} }
+
+.iv-grid{
+  display:grid;
+  grid-template-columns:270px minmax(0,1fr) 250px;
+  gap:24px;
+  align-items:start;
+}
+
+@media (max-width:1100px){
+  .iv-grid{grid-template-columns:240px minmax(0,1fr)}
+  .iv-tips{grid-column:2;grid-row:2}
+}
+
+@media (max-width:900px){
+  .iv-grid{grid-template-columns:1fr}
+  .iv-rail,.iv-tips{position:static;grid-column:auto;grid-row:auto}
+}
+
+.iv-rail{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:14px;
+  position:sticky;
+  top:78px;
+}
+
+.iv-tips{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:18px;
+  position:sticky;
+  top:78px;
+}
+
+.iv-tips h3{
+  font-family:var(--display);
+  font-size:15px;
+  font-weight:700;
+  margin-bottom:12px;
+}
+
+.iv-tips ul{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.iv-tips li{
+  font-size:13.5px;
+  line-height:1.45;
+  color:var(--muted);
+}
+
+.iv-tips li b{
+  color:var(--text);
+}
+
+.iv-tips a{
+  display:block;
+  margin-top:16px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+  font-family:var(--display);
+  font-size:12.5px;
+  font-weight:700;
+  color:var(--brand-text);
+  text-decoration:none;
+}
+
+.iv-tips a:hover{
+  text-decoration:underline;
+}
+
 .rail-group{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:12px 8px 6px}
 .rail-item{
   display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;font:inherit;color:inherit;
