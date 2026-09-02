@@ -114,10 +114,20 @@ button{font-family:inherit}
 }
 .topbar-in{max-width:var(--maxw);margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:20px}
 .lockup{display:flex;align-items:center;gap:11px;text-decoration:none;color:inherit;flex:0 0 auto}
-.mark{
-  width:44px;height:44px;border-radius:7px;background:var(--brand);color:var(--brand-ink);
-  display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:16px;
-  letter-spacing:-.04em;box-shadow:var(--shadow);
+.mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 7px;
+  background: var(--brand);
+  color: var(--brand-ink);
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: -0.04em;
+  box-shadow: var(--shadow);
+  flex-shrink: 0;
 }
 .lockup-txt{display:flex;flex-direction:column;line-height:1.15}
 .lockup-txt b{font-family:var(--display);font-size:13.5px;font-weight:700;letter-spacing:-.01em}
@@ -765,13 +775,7 @@ footer b{font-family:var(--display);font-size:13px;color:var(--text)}
 <header class="topbar">
   <div class="topbar-in">
     <a class="lockup" href="#/">
-      <span class="marriott-logo">
-        <svg width="42" height="42" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="BYU Marriott Logo">
-          <rect width="100" height="100" rx="14" fill="#002E5D"/>
-          <path d="M22 68V32H33.5L42 53.5L50.5 32H62V68H53.5V43L45 64.5H39L30.5 43V68H22Z" fill="#FFFFFF"/>
-          <path d="M68 68V32H76V68H68Z" fill="#D9A93F"/>
-        </svg>
-      </span>
+      <span class="mark">BYU</span>
       <span class="lockup-txt">
         <b>BYU Marriott</b>
         <span>Information Systems</span>
