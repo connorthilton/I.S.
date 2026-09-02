@@ -1919,9 +1919,15 @@ function renderPrepIndex() {
       <p>Pick a role. You get three behavioral questions and four technical ones drawn from real entry-level interviews for that specific job &mdash; not a generic list. Write your own answer first, then compare it against a strong version and a checklist of what the interviewer is listening for.</p>
     </div>
     <div class="prep-grid">${cards}</div>
-    <p style="margin-top:26px;font-size:14px;color:var(--muted);max-width:70ch">Your typed answers are saved in this browser so you can come back to them. Nothing is uploaded anywhere.</p>
+    <div style="margin-top:22px;background:var(--brand-soft);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;max-width:760px">
+      <h3 style="font-size:17px;margin-bottom:5px">Want more general interview tips?</h3>
+      <p style="font-size:14px;color:var(--muted)">BYU’s Professional Practice and Career Success resources offer additional guidance for preparing for and succeeding in interviews.</p>
+      <a href="https://ppa.byu.edu/virtual-interviews" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:8px;font-family:var(--display);font-size:13px;font-weight:700">View BYU Virtual Interviews &rarr;</a>
+    </div>
+    <p style="margin-top:18px;font-size:14px;color:var(--muted);max-width:70ch">Your typed answers are saved in this browser so you can come back to them. Nothing is uploaded anywhere.</p>
   </div>`;
 }
+
 
 /* =====================  INTERVIEW SESSION  ===================== */
 let ivIndex = 0;
@@ -1936,6 +1942,75 @@ function renderInterview(roleId) {
   const t = roleTrack(roleId);
   const saved = store.get("ivans:" + roleId, {});
   const answer = saved[ivIndex] || "";
+
+  const IV_BUZZWORDS = {
+    "swe-fullstack": [
+      ["debugging", "Git", "problem-solving"], ["code review", "feedback", "Git"], ["JavaScript", "HTML/CSS", "SQL"],
+      ["client-server", "HTTP", "API", "SQL"], ["SQL", "INNER JOIN", "LEFT JOIN", "primary/foreign keys"],
+      ["browser dev tools", "API requests", "database", "debugging"], ["test cases", "edge cases", "validation", "automated testing"]
+    ],
+    "swe-frontend": [
+      ["communication", "tradeoffs", "user needs"], ["HTML/CSS", "JavaScript", "Git"], ["documentation", "learning", "debugging"],
+      ["state", "props", "components"], ["responsive design", "accessibility", "HTML/CSS"], ["API", "error handling", "loading states"], ["box model", "flexbox", "grid"]
+    ],
+    "swe-sdet": [
+      ["test cases", "edge cases", "debugging"], ["bug report", "reproduction steps", "acceptance criteria"], ["QA", "quality", "testing"],
+      ["test cases", "positive/negative cases", "edge cases"], ["unit tests", "integration tests", "UI tests", "regression testing"],
+      ["database", "SQL", "API", "data validation"], ["steps to reproduce", "expected vs. actual", "severity"]
+    ],
+    "dta-analyst": [
+      ["SQL", "Tableau", "KPIs", "data visualization"], ["data validation", "data cleaning", "duplicates", "missing values"], ["requirements gathering", "KPIs", "stakeholders"],
+      ["SQL", "JOIN", "GROUP BY", "COUNT/SUM"], ["data validation", "data cleaning", "SQL", "dashboard"], ["correlation", "causation", "business context"], ["data visualization", "comparison", "trend", "distribution"]
+    ],
+    "dta-eng": [
+      ["data cleaning", "SQL", "data quality"], ["data quality", "data model", "long-term maintenance"], ["data pipelines", "SQL", "data modeling"],
+      ["grain", "joins", "duplicate rows", "data model"], ["pipeline", "logs", "data quality", "validation"], ["fact table", "dimension table", "star schema"], ["data validation", "duplicates", "missing values", "row counts"]
+    ],
+    "dta-scientist": [
+      ["Python", "pandas", "data cleaning", "model evaluation"], ["visualization", "statistics", "business context"], ["Python", "statistics", "machine learning"],
+      ["accuracy", "precision/recall", "class imbalance"], ["overfitting", "training data", "test data", "validation"], ["A/B test", "control group", "success metric"], ["supervised learning", "unsupervised learning", "clustering"]
+    ],
+    "bsa-analyst": [
+      ["requirements gathering", "stakeholders", "documentation"], ["stakeholder communication", "prioritization", "tradeoffs"], ["communication", "collaboration", "stakeholders"],
+      ["user story", "acceptance criteria", "requirements"], ["ERD", "tables", "relationships", "SQL"], ["functional requirement", "non-functional requirement", "requirements"], ["process mapping", "bottleneck", "process improvement"]
+    ],
+    "bsa-apm": [
+      ["user needs", "usability", "product design"], ["tradeoffs", "assumptions", "data"], ["scope", "requirements", "technical tradeoffs"],
+      ["prioritization", "user value", "effort", "KPIs"], ["user feedback", "product metrics", "funnel"], ["success metric", "KPI", "user behavior"], ["requirements", "technical feasibility", "communication"]
+    ],
+    "bsa-consultant": [
+      ["business processes", "requirements", "technology"], ["stakeholder communication", "trust", "business needs"], ["prioritization", "deadlines", "communication"],
+      ["requirements gathering", "business process", "root cause"], ["configuration", "customization", "business requirements"], ["data migration", "data cleaning", "validation", "SQL"], ["communication", "technical terms", "business impact"]
+    ],
+    "sec-soc": [
+      ["logs", "investigation", "security"], ["security news", "learning", "threats"], ["methodical troubleshooting", "documentation", "incident response"],
+      ["phishing", "sender", "links", "attachments"], ["confidentiality", "integrity", "availability"], ["TCP/IP", "SYN", "ACK", "network traffic"], ["security alert", "logs", "false positive", "context"]
+    ],
+    "sec-grc": [
+      ["attention to detail", "documentation", "evidence"], ["follow-up", "communication", "deadlines"], ["risk", "controls", "audit", "compliance"],
+      ["IT general controls", "access control", "change management"], ["access review", "least privilege", "user accounts"], ["segregation of duties", "risk", "controls"], ["audit evidence", "risk", "access control", "documentation"]
+    ],
+    "sec-pentest": [
+      ["troubleshooting", "security testing", "documentation"], ["problem-solving", "research", "debugging"], ["security finding", "risk", "business impact"],
+      ["SQL injection", "input validation", "parameterized queries"], ["XSS", "input validation", "web security"], ["scope", "authorization", "rules of engagement"], ["authorization", "scope", "ethics", "documentation"]
+    ],
+    "cld-cloud": [
+      ["automation", "Python", "VBA", "process improvement"], ["troubleshooting", "testing", "documentation"], ["cloud", "networking", "systems"],
+      ["compute", "storage", "networking"], ["infrastructure as code", "automation", "repeatability"], ["least privilege", "IAM", "access control"], ["cloud costs", "monitoring", "resource usage"]
+    ],
+    "cld-devops": [
+      ["automation", "process improvement", "scripting"], ["troubleshooting", "reliability", "communication"], ["automation", "reliability", "systems"],
+      ["virtual machine", "container", "resources"], ["CI/CD", "Git", "automation", "deployment"], ["monitoring", "availability", "errors", "response time"], ["rollback", "logs", "monitoring", "deployment"]
+    ],
+    "cld-sysadmin": [
+      ["troubleshooting", "communication", "customer service"], ["documentation", "research", "troubleshooting"], ["networking", "systems", "troubleshooting"],
+      ["DNS", "IP address", "HTTP", "client-server"], ["DNS", "DHCP", "IP address", "networking"], ["access control", "onboarding", "offboarding"], ["ping", "DNS", "DHCP", "network troubleshooting"]
+    ]
+  };
+  const buzzwords = IV_BUZZWORDS[roleId]?.[ivIndex] || [];
+  const buzzPrompt = buzzwords.length
+    ? `When relevant, work in terms like ${buzzwords.join(", ")}. Only use words you genuinely understand and can explain further.`
+    : "When relevant, use specific technical terms you genuinely understand and can explain further.";
 
   const beh = qs.map((x, i) => ({ x, i })).filter(o => o.x.type === "behavioral");
   const tech = qs.map((x, i) => ({ x, i })).filter(o => o.x.type === "technical");
@@ -1979,7 +2054,7 @@ function renderInterview(roleId) {
             <span>Your answer</span>
             <span id="wordcount">${answer.trim() ? answer.trim().split(/\s+/).length : 0} words</span>
           </div>
-          <textarea id="answer" placeholder="Say it out loud first, then type what you actually said. For behavioral questions use situation, task, action, result &mdash; and spend most of your words on the action.">${esc(answer)}</textarea>
+          <textarea id="answer" placeholder="Say it out loud first, then type what you actually said. ${buzzPrompt}">${esc(answer)}</textarea>
 
           <div class="iv-actions">
             <button class="btn btn-primary btn-sm" data-iv-action="reveal">
@@ -2004,6 +2079,19 @@ function renderInterview(roleId) {
           </div>
         </div>
       </div>
+
+      <aside class="iv-tips">
+        <h3>Interview Tips</h3>
+        <ul>
+          <li><b>Sit up straight</b> and use good posture.</li>
+          <li><b>Smile naturally</b> and show that you are engaged.</li>
+          <li><b>Look at the interviewer or camera</b> when you speak.</li>
+          <li><b>Keep your hands still</b> and avoid unnecessary fidgeting.</li>
+          <li><b>Pause instead of using filler words</b> like “um,” “like,” or “you know.”</li>
+          <li><b>Give specific examples</b> and clearly explain your role and what you learned.</li>
+        </ul>
+        <a href="https://ppa.byu.edu/virtual-interviews" target="_blank" rel="noopener noreferrer">More interview tips from BYU &rarr;</a>
+      </aside>
     </div>
   </div>`;
 }
